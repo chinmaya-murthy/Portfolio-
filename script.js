@@ -28,6 +28,7 @@ class Scene {
   constructor(svg) {
     this.svg = svg;
     this.isPaused = false;
+
     this.speedX = 0.0022;
     this.speedY = 0.0017;
     this.strength = 24;
@@ -44,6 +45,7 @@ class Scene {
 
     this.pathB = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     this.pathB.setAttribute('fill', 'none');
+    
     this.pathB.setAttribute('stroke', '#22d3ee');
     this.pathB.setAttribute('stroke-width', '1.4px');
 
@@ -73,6 +75,8 @@ class Scene {
       for (let j = 0; j < totalCols; j += 1) {
         const px = this.flag.x + j * stepX;
         const py = this.flag.y + i * stepY;
+
+      
         line.push({ originX: px, originY: py, offsetX: 0, offsetY: 0, x: px, y: py });
       }
       this.flag.lines.push(line);
@@ -106,7 +110,6 @@ class Scene {
           point.originX * 0.002 + time * this.speedX,
           point.originY * 0.003 + time * this.speedY
         );
-
         const rolling = Math.sin(time * 0.006 + point.originX * 0.015) * 6;
         const flutter = Math.cos(time * 0.008 + point.originY * 0.02) * 6;
 
