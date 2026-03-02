@@ -28,9 +28,10 @@ class Scene {
   constructor(svg) {
     this.svg = svg;
     this.isPaused = false;
-    this.speedX = 0.00045;
-    this.speedY = 0.00034;
-    this.strength = 12;
+
+    this.speedX = 0.0022;
+    this.speedY = 0.0017;
+    this.strength = 24;
 
     window.addEventListener('resize', () => {
       this.svg.resize();
@@ -44,13 +45,14 @@ class Scene {
 
     this.pathB = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     this.pathB.setAttribute('fill', 'none');
-    this.pathB.setAttribute('stroke', '#ff4f9a');
-    this.pathB.setAttribute('stroke-width', '1.3px');
+    
+    this.pathB.setAttribute('stroke', '#22d3ee');
+    this.pathB.setAttribute('stroke-width', '1.4px');
 
     this.pathR = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     this.pathR.setAttribute('fill', 'none');
-    this.pathR.setAttribute('stroke', '#ff8fc2');
-    this.pathR.setAttribute('stroke-width', '1.3px');
+    this.pathR.setAttribute('stroke', '#f59e0b');
+    this.pathR.setAttribute('stroke-width', '1.4px');
 
     this.svg.el.append(this.pathB, this.pathR);
 
@@ -73,21 +75,9 @@ class Scene {
       for (let j = 0; j < totalCols; j += 1) {
         const px = this.flag.x + j * stepX;
         const py = this.flag.y + i * stepY;
-        const u = j / (totalCols - 1);
-        const v = i / (totalRows - 1);
-        const edgeFadeX = Math.sin(Math.PI * u);
-        const edgeFadeY = Math.sin(Math.PI * v);
-        const edgeInfluence = edgeFadeX * edgeFadeY;
 
-        line.push({
-          originX: px,
-          originY: py,
-          offsetX: 0,
-          offsetY: 0,
-          x: px,
-          y: py,
-          edgeInfluence
-        });
+      
+        line.push({ originX: px, originY: py, offsetX: 0, offsetY: 0, x: px, y: py });
       }
       this.flag.lines.push(line);
     }
@@ -120,13 +110,11 @@ class Scene {
           point.originX * 0.002 + time * this.speedX,
           point.originY * 0.003 + time * this.speedY
         );
+        const rolling = Math.sin(time * 0.006 + point.originX * 0.015) * 6;
+        const flutter = Math.cos(time * 0.008 + point.originY * 0.02) * 6;
 
-        const rolling = Math.sin(time * 0.0018 + point.originX * 0.012) * 4;
-        const flutter = Math.cos(time * 0.002 + point.originY * 0.014) * 4;
-        const amplitude = point.edgeInfluence;
-
-        const offsetX = (Math.cos(flow * Math.PI * 2) * this.strength + rolling) * amplitude;
-        const offsetY = (Math.sin(flow * Math.PI * 2) * this.strength + flutter) * amplitude;
+        const offsetX = Math.cos(flow * Math.PI * 2) * this.strength + rolling;
+        const offsetY = Math.sin(flow * Math.PI * 2) * this.strength + flutter;
 
         point.offsetX = offsetX;
         point.offsetY = offsetY;
@@ -137,7 +125,7 @@ class Scene {
   }
 
   draw() {
-    const aStrength = 0.38;
+    const aStrength = 0.4;
 
     this.flag.lines.forEach((line, index) => {
       const start = line[0];
@@ -186,6 +174,10 @@ class Scene {
     if (!this.isPaused) {
       this.move(nowTime);
       this.draw();
+
+      const phase = Math.sin(nowTime * 0.006) * 10;
+      this.pathB.setAttribute('transform', `translate(${phase}, 0)`);
+      this.pathR.setAttribute('transform', `translate(${-phase}, 0)`);
     }
 
     this.raf = requestAnimationFrame(this.tick.bind(this));
